@@ -1,6 +1,6 @@
-import React, {useState, useEffect, useCallback} from 'react';
-import {Table, Button} from 'antd';
-import {userApi} from '@api';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Table, Button } from 'antd';
+import { userApi } from '@api';
 
 import notification from '@coms/notification';
 import CommonTitle from '@coms/common-title';
@@ -23,7 +23,7 @@ const UserManager = () => {
     } catch (err) {
       notification.error({
         message: '请求用户列表失败',
-        description: err.message
+        description: err.message,
       });
     } finally {
       setLoading(false);
@@ -31,7 +31,7 @@ const UserManager = () => {
   }, []);
 
   const onAddUser = useCallback(async () => {
-    userUpsert();
+    userUpsert({ getUser });
   });
 
   useEffect(() => {
@@ -41,17 +41,13 @@ const UserManager = () => {
   return (
     <div>
       <CommonTitle>用户管理</CommonTitle>
-      <Button
-        type="primary"
-        className="margin-b10"
-        onClick={onAddUser}
-      >
-          + 添加用户
+      <Button type="primary" className="margin-b10" onClick={onAddUser}>
+        + 添加用户
       </Button>
       <Table
         columns={cols()}
         dataSource={users}
-        rowKey="id"
+        rowKey="gmtCreate"
         loading={loading}
       />
     </div>
