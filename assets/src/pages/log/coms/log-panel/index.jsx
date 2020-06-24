@@ -2,15 +2,16 @@ import React, {useEffect, useState, useCallback} from 'react';
 import _ from 'lodash';
 import moment from 'moment';
 import PropTypes from 'prop-types';
+import {CopyToClipboard} from 'react-copy-to-clipboard';
 import {CopyOutlined, CloudDownloadOutlined, InfoCircleOutlined} from '@ant-design/icons';
 import {
   DatePicker, Select, InputNumber,
   Input, Tooltip, TimePicker, Button, Spin,
-  Empty, Switch
+  Empty, Switch, message
 } from 'antd';
-
 import api from '@api/index';
 import msgParser from '@lib/msg-parser';
+import {downloadText} from 'download.js';
 import WhiteSpace from '@coms/white-space';
 import notification from '@coms/notification';
 
@@ -122,6 +123,18 @@ const LogPanel = (props) => {
     setStreamMode(value);
   };
 
+  const getLogString = () => {
+    if (!logs) {
+      return '';
+    }
+
+    return logs.success.join('\n');
+  };
+
+  const onDownload = () => {
+    downloadText(`${filename}.log`, getLogString());
+  };
+
   return (
     <div>
       <div className="log-filter">
@@ -194,10 +207,15 @@ const LogPanel = (props) => {
       <div className="log-box-op">
         <div className="left">
           <Tooltip title="复制">
-            <CopyOutlined />
+            <CopyToClipboard
+              text={getLogString()}
+              onCopy={() => message.success(`复制成功！共${getLogString().length}个字符`)}
+            >
+              <CopyOutlined />
+            </CopyToClipboard>
           </Tooltip>
           <Tooltip title="下载">
-            <CloudDownloadOutlined />
+            <CloudDownloadOutlined onClick={onDownload} />
           </Tooltip>
         </div>
       </div>

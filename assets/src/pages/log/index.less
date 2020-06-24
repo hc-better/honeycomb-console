@@ -42,9 +42,24 @@
   overflow: auto;
   position: relative;
   padding-top: 30px;
+  background: rgb(249, 249, 249);
+  font-size: 13px;
 
   .log-code {
-    white-space: pre-line;
+    white-space: pre;
+    font-family: monospace;
+    margin-top: 1em;
+    border-bottom: 1px solid #eee;
+    margin-bottom: 0;
+    padding-bottom: 1em;
+  }
+
+  .error {
+    color: @error-color;
+  }
+
+  .warn {
+    color: @warning-color;
   }
 }
 
