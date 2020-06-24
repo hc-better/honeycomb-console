@@ -24,3 +24,8 @@ export const createUser = ({ username, password }) => {
 export const deleteUser = ({ username }) => {
   return request.delete(`/api/user/${username}/delete`);
 };
+
+//  更新用户
+export const updateUser = ({ username, password }) => {
+  return request.put(`/api/user/${username}/update`, { username, password });
+};

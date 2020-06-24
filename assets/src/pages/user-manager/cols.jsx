@@ -4,11 +4,14 @@ import { USER_ROLE_TITLE, USER_STATUS_TITLE } from '../../lib/consts';
 import { userApi } from '@api';
 import { Button, Divider, Popconfirm } from 'antd';
 import notification from '@coms/notification';
+import userUpsert from './coms/user-upsert';
 
 const userName = _.get(window, 'CONFIG.user.name');
 
 const handleEdit = () => {
   console.log('edit =>', this);
+
+  userUpsert();
 };
 
 const handleConfirm = async (row) => {

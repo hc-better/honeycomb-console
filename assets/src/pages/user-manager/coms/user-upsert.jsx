@@ -16,24 +16,32 @@ const UserUpsert = (props) => {
   const [comfirmLoading, setComfirmLoading] = useState(false);
   const [visible, setVisible] = useState(true);
 
+  const isAdd = _.get(props, 'row') === undefined;
+  console.log(isAdd);
+
   const onSubmit = () => {
     form.validateFields().then(async (value) => {
       // TODO: 调用 API，触发用户创建, 回调组件, 刷新用户列表
       const { username, password } = value;
       setComfirmLoading(true);
       try {
-        const data = await userApi.createUser({ username, password });
-        console.log('data =>', data);
+        const values = {
+          username: username.trim(),
+          password: password.trim(),
+        };
 
-        message.success('用户添加成功');
+        isAdd
+          ? await userApi.createUser(values)
+          : await userApi.updateUser(values);
+
+        message.success(isAdd ? '用户添加成功' : '用户修改成功');
       } catch (error) {
         notification.error({
-          message: '添加失败',
+          message: isAdd ? '添加失败' : '修改失败',
           description: error.message,
         });
       } finally {
         setComfirmLoading(false);
-        _.isFunction(props.getUser) && props.getUser();
         onClose();
       }
     });
@@ -41,7 +49,7 @@ const UserUpsert = (props) => {
 
   const onClose = useCallback(() => {
     setVisible(false);
-
+    _.isFunction(props.getUser) && props.getUser();
     _.isFunction(props.onClose) && props.onClose();
   });
 
@@ -51,7 +59,7 @@ const UserUpsert = (props) => {
       cancelText="取消"
       onOk={onSubmit}
       confirmLoading={comfirmLoading}
-      title="新建用户"
+      title={isAdd ? '新建用户' : '编辑用户'}
       visible={visible}
       onCancel={onClose}
     >
@@ -59,6 +67,7 @@ const UserUpsert = (props) => {
         <Form.Item
           label="用户名"
           name="username"
+          initialValue={_.get(props, 'row.name')}
           rules={[{ required: true, message: '用户名不能为空！' }]}
         >
           <Input />
