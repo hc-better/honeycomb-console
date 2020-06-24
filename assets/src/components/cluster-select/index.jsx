@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import React, {useState} from 'react';
 import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
@@ -62,10 +63,20 @@ const ClusterSelect = (props) => {
           })
         }
       </div>
+=======
+import React from 'react';
+import {Modal} from 'antd';
+
+const ClusterSelect = () => {
+  return (
+    <Modal title="请选择一个集群">
+
+>>>>>>> feat: 增加集群切换 & 常用集群功能
     </Modal>
   );
 };
 
+<<<<<<< HEAD
 ClusterSelect.propTypes = {
   clusters: PropTypes.object,
   onOk: PropTypes.func
@@ -86,3 +97,6 @@ export default (clusters) => {
     document.body.appendChild(div);
   });
 };
+=======
+export default ClusterSelect;
+>>>>>>> feat: 增加集群切换 & 常用集群功能
