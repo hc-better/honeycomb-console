@@ -1,8 +1,8 @@
 import React from 'react';
+import _ from 'lodash';
 import PropTypes from 'prop-types';
 import {message} from 'antd';
 
-import _ from 'lodash';
 import {connect} from 'dva';
 import {withRouter, routerRedux} from 'dva/router';
 
@@ -16,8 +16,6 @@ import HcHeader from './coms/header';
 import ClusterDrawer from './coms/cluster';
 
 import './index.less';
-
-const {prefix} = window.CONFIG;
 
 class AppLayout extends React.Component {
   static propTypes = {
