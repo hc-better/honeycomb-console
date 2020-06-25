@@ -19,7 +19,7 @@ const DEFAULT_ACTIVE_LOG = 'server.{year}-{month}-{day}.log';
 
 // 日志模块
 const Log = (props) => {
-  const {currentClusterCode} = props;
+  const {currentClusterCode, currentCluster} = props;
   const [filesLoading, setFileLoading] = useState(false);
   const [tree, setTree] = useState([]);
   const [activeLog, setActiveLog] = useState(DEFAULT_ACTIVE_LOG);
@@ -103,6 +103,7 @@ const Log = (props) => {
         <LogPanel
           clusterCode={currentClusterCode}
           logFileName={activeLog}
+          currentCluster={currentCluster}
         />
       </div>
     </div>
@@ -111,7 +112,8 @@ const Log = (props) => {
 
 const mapState2Props = (state) => {
   return {
-    currentClusterCode: state.global.currentClusterCode
+    currentClusterCode: state.global.currentClusterCode,
+    currentCluster: state.global.currentCluster
   };
 };
 
@@ -119,6 +121,7 @@ Log.propTypes = {
   currentClusterCode: PropTypes.string,
   location: PropTypes.object,
   dispatch: PropTypes.func,
+  currentCluster: PropTypes.object
 };
 
 export default withRouter(connect(mapState2Props)(Log));

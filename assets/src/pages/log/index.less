@@ -16,6 +16,12 @@
   width: calc(100% - 232px);
   position: relative;
 
+  .log-filter {
+    .log-info {
+      display: flex;
+    }
+  }
+
   .log-filter-box {
     margin-top: 20px;
 
@@ -52,6 +58,7 @@
     border-bottom: 1px solid #eee;
     margin-bottom: 0;
     padding-bottom: 1em;
+    overflow: visible;
   }
 
   .error {
@@ -67,8 +74,8 @@
   position: absolute;
   left: 10px;
   top: 115px;
-  background: white;
   z-index: 100;
+  width: calc(100% - 20px);
 
   .left {
     float: left;
@@ -77,7 +84,6 @@
 
   .right {
     float: right;
-    margin-right: 20px;
   }
 
   span {
