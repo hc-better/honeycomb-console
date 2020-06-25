@@ -16,16 +16,11 @@ export const list = () => {
 };
 
 // 添加用户
-export const createUser = ({ username, password }) => {
-  return request.post('/api/user/create', { username, password });
+export const createUser = ({ name, password }) => {
+  return request.post('/api/user/create', { name, password });
 };
 
 // 删除用户
-export const deleteUser = ({ username }) => {
-  return request.delete(`/api/user/${username}/delete`);
-};
-
-//  更新用户
-export const updateUser = ({ username, password }) => {
-  return request.put(`/api/user/${username}/update`, { username, password });
+export const deleteUser = ({ name }) => {
+  return request.post(`/api/user/${name}/delete`);
 };

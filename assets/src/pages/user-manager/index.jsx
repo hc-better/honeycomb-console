@@ -46,7 +46,8 @@ const UserManager = (props) => {
   const handleConfirm = async (row) => {
     const rowName = _.get(row, 'name');
     try {
-      await userApi.deleteUser({ username: rowName });
+      await userApi.deleteUser({ name: rowName });
+      getUser();
     } catch (error) {
       notification.error({
         message: '用户删除失败',

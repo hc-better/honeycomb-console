@@ -2,7 +2,7 @@ import React, { useCallback, useState } from 'react';
 import _ from 'lodash';
 import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
-import { Modal, Form, Input } from 'antd';
+import { Modal, Form, Input, message } from 'antd';
 import { userApi } from '@api';
 import notification from '@coms/notification';
 
@@ -22,17 +22,16 @@ const UserUpsert = (props) => {
   const onSubmit = () => {
     form.validateFields().then(async (value) => {
       // TODO: 调用 API，触发用户创建, 回调组件, 刷新用户列表
-      const { username, password } = value;
+      const { name, password } = value;
+      console.log('form =>', value);
       setComfirmLoading(true);
       try {
         const values = {
-          username: username.trim(),
+          name: name.trim(),
           password: password.trim(),
         };
 
-        isAdd
-          ? await userApi.createUser(values)
-          : await userApi.updateUser(values);
+        await userApi.createUser(values);
 
         message.success(isAdd ? '用户添加成功' : '用户修改成功');
       } catch (error) {
@@ -66,7 +65,7 @@ const UserUpsert = (props) => {
       <Form form={form} {...layout}>
         <Form.Item
           label="用户名"
-          name="username"
+          name="name"
           initialValue={_.get(props, 'row.name')}
           rules={[{ required: true, message: '用户名不能为空！' }]}
         >

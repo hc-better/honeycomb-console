@@ -74,7 +74,6 @@ class Request {
     ['post', 'put', 'patch'].forEach((method) => {
       this[method] = (url, data, config) => {
         config = this.procConfig(config);
-
         return this.request(
           _.merge({}, config, {
             url,
