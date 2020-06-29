@@ -20,6 +20,8 @@
     "download.js": "^1.0.0",
     "dva": "^2.4.1",
     "dva-loading": "^3.0.20",
+    "echarts": "^4.8.0",
+    "echarts-for-react": "^2.0.16",
     "history": "^4.10.1",
     "http-proxy-middleware": "^1.0.4",
     "lodash": "4.11.1",
