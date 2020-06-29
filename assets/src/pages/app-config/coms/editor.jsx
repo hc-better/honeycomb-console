@@ -1,10 +1,12 @@
 import React, {useState, useEffect} from 'react';
-import MonacoEditor from 'react-monaco-editor';
+import MonacoEditor, { MonacoDiffEditor } from 'react-monaco-editor';
 import {Button} from 'antd';
 
 const Editor = ({appId}) => {
   const [editStatus, setEditStatus] = useState(false);
   const [diffStatus, setDiffStatus] = useState(false);
+  const [code, setCurrentCode] = useState('const a = "Hello Monaco"');
+  const [original, setOriginal] = useState('const a = "Hello World"');
 
   useEffect(() => {
     // TODO 获取当前APP配置
@@ -13,10 +15,16 @@ const Editor = ({appId}) => {
 
   return (
     <div className="editor-wrap">
-      <MonacoEditor />
-      {diffStatus ? (
-        <MonacoEditor />
-      ) : null}
+      <div className="editor-wrap-code">
+        {diffStatus ? (
+          <MonacoDiffEditor
+            value={code}
+            original={original}
+          />
+        ) : (
+          <MonacoEditor />
+          )}
+      </div>
       <div>
         {editStatus ? (
           <Button onClick={() => setEditStatus(true)}>

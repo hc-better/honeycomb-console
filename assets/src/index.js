@@ -5,6 +5,7 @@ import {createBrowserHistory} from 'history';
 import router from './router';
 import loginRouter from './login-router';
 import globalModel from './model/global';
+import userModel from './model/user';
 
 import './index.less';
 
@@ -16,7 +17,7 @@ const app = dva({
 
 app.use(createLoading());
 
-[globalModel].forEach(app.model);
+[globalModel, userModel].forEach((key) => app.model(key));
 
 app.router(isLogin ? loginRouter : router);
 

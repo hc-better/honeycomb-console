@@ -9,11 +9,13 @@ const load = (component) => {
   return dynamic({component});
 };
 
+const Log = load(() => import('./pages/log'));
 const Layout = load(() => import('./pages/layout'));
 const AppDev = load(() => import('./pages/app-dev'));
 const AppConfig = load(() => import('./pages/app-config'));
 const UserManager = load(() => import('./pages/user-manager'));
 const ClusterManager = load(() => import('./pages/cluster-manager'));
+
 
 const router = ({history}) => {
   return (
@@ -25,6 +27,7 @@ const router = ({history}) => {
             <Route path={PAGES.APP_CONFIG} component={AppConfig} />
             <Route path={PAGES.USER_MANAGER} component={UserManager} />
             <Route path={PAGES.CLUSTER_MANAGER} component={ClusterManager} />
+            <Route path={PAGES.LOG} component={Log} />
           </Switch>
         </Layout>
       </Switch>

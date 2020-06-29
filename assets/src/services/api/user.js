@@ -14,3 +14,13 @@ export const initUser = ({username, password}) => {
 export const list = () => {
   return request.get('/api/user/list');
 };
+
+// 添加用户
+export const createUser = ({name, password}) => {
+  return request.post('/api/user/create', {name, password});
+};
+
+// 删除用户
+export const deleteUser = ({name}) => {
+  return request.post(`/api/user/${name}/delete`);
+};

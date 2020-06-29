@@ -2,6 +2,7 @@ import _ from 'lodash';
 
 import {clusterApi} from '@api';
 import {tryParse} from '@lib/util';
+import {LS_LAST_SELECT_CLUSTER_CODE} from '@lib/consts';
 
 
 const key = 'cluster-usage-count';
@@ -48,15 +49,19 @@ export default {
   },
   effects: {
     // 获取当前用户的可用的集群
-    * getCluster(payload, {put}) {
+    // 彬设置默认选中的 cluster
+    * getCluster(__, {put}) {
       const clusters = yield clusterApi.list();
+
 
       yield put({
         type: 'saveCluster',
         payload: {
-          clusters
-        }
+          clusters,
+        },
       });
+
+      return clusters;
     },
   },
   reducers: {
@@ -90,6 +95,8 @@ export default {
 
       const freqClusterCodes = getFreqClusterCodes();
       const freqClusters = [];
+
+      localStorage.setItem(LS_LAST_SELECT_CLUSTER_CODE, clusterCode);
 
       for (let i = 0; i < freqClusterCodes.length; i++) {
         const code = freqClusterCodes[i];

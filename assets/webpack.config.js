@@ -4,8 +4,6 @@ const errorOverlayMiddleware = require('react-dev-utils/errorOverlayMiddleware')
 const ReplaceCSSUrl = require('webpack-plugin-replace-css-url');
 const ESBuildPlugin = require('esbuild-minimizer-webpack-plugin').default;
 const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
-const APP_DIR = path.resolve(__dirname, './src');
-const MONACO_DIR = path.resolve(__dirname, './node_modules/monaco-editor');
 const webpack = require('webpack');
 // const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 const appConfig = require('../config');
@@ -131,7 +129,6 @@ const config = {
       },
       {
         test: /\.(less|css)$/,
-        include: APP_DIR,
         use: [
           {
             loader: MiniCssExtractPlugin.loader
@@ -147,17 +144,14 @@ const config = {
             }
           }
         ]
-      },
-      {
-        test: /\.css$/,
-        include: MONACO_DIR,
-        use: ['style-loader', 'css-loader'],
       }
     ]
   },
   plugins: [
     new webpack.HotModuleReplacementPlugin(),
-    new MonacoWebpackPlugin(['javascript', 'json']),
+    new MonacoWebpackPlugin({
+      languages: ["json", "javascript", "typescript"]
+    }),
     new MiniCssExtractPlugin({
       filename: '[name].css'
     }),
