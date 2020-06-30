@@ -19,9 +19,10 @@ import {aclApi, appApi} from '@api';
 import CommonTitle from '@coms/common-title';
 import notification from '@coms/notification';
 import {tryParse} from '@lib/util';
-import {clusterType} from '@lib/prop-types';
+// import {clusterType} from '@lib/prop-types';
 
 import ClusterSelector from './cluster-selector';
+import authAdd from './auth-add';
 
 const DEFAULT_APP = {
   name: '*',
@@ -75,18 +76,22 @@ const ClusterAuth = (props) => {
     })();
   }, [clusterCode]);
 
-  const handleAdd = useCallback(() => {
-    const newData = {
-      id: -1,
-      name: '',
-      cluster_admin: 0,
-      apps: '',
-      cluster_code: this.state.selectedCluster.cluster_code,
-      cluster_id: this.state.selectedCluster.cluster_id,
-      cluster_name: this.state.selectedCluster.cluster_name,
-    };
+  // const handleAdd = useCallback(() => {
+  //   const newData = {
+  //     id: -1,
+  //     name: '',
+  //     cluster_admin: 0,
+  //     apps: '',
+  //     cluster_code: this.state.selectedCluster.cluster_code,
+  //     cluster_id: this.state.selectedCluster.cluster_id,
+  //     cluster_name: this.state.selectedCluster.cluster_name,
+  //   };
 
-    setAclList([...aclList, newData]);
+  //   setAclList([...aclList, newData]);
+  // });
+
+  const handleAuthAdd = useCallback(() => {
+    authAdd({selectedCluster: _.get(clusters, clusterCode, {}), appList});
   });
 
   const cancel = (index) => {
@@ -128,6 +133,8 @@ const ClusterAuth = (props) => {
       title: '拥有的APP',
       dataIndex: 'apps',
       render: (text) => {
+        console.log('拥有的APP ==>', text);
+
         return (
           <Select
             value={tryParse(text, [])}
@@ -208,7 +215,7 @@ const ClusterAuth = (props) => {
           value={clusterCode}
           onChange={(clusterCode) => setClusterCode(clusterCode)}
         />
-        <Button type="primary" onClick={handleAdd}>
+        <Button type="primary" onClick={handleAuthAdd}>
           + 添加权限
         </Button>
       </Space>
@@ -225,7 +232,8 @@ const ClusterAuth = (props) => {
 ClusterAuth.propTypes = {
   loading: PropTypes.bool,
   dispatch: PropTypes.func,
-  clusters: PropTypes.arrayOf(clusterType),
+  // clusters: PropTypes.arrayOf(clusterType),
+  clusters: PropTypes.object,
   currentClusterCode: PropTypes.string
 };
 

@@ -6,7 +6,7 @@ export const aclList = () => {
 };
 
 export const createAcl = (data) => {
-  return request.post('/api/acl/create', data);
+  return request.post('/api/acl/create', {...data});
 };
 
 export const updateAcl = (code) => {
