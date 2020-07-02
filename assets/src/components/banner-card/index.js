@@ -5,7 +5,10 @@ import './index.less';
 
 const BannerCard = (props) => {
   return (
-    <div className="banner-card">
+    <div
+      className="banner-card"
+      {...props}
+    >
       {
         props.children
       }
@@ -14,7 +17,8 @@ const BannerCard = (props) => {
 };
 
 BannerCard.propTypes = {
-  children: PropTypes.element
+  children: PropTypes.element,
+  style: CSSStyleSheet
 };
 
 export default BannerCard;

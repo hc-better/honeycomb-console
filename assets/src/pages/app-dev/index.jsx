@@ -11,6 +11,8 @@ import useInterval from '@lib/use-interval';
 
 import App from './coms/app';
 
+import './index.less';
+
 const q = new Q({
   autostart: true,
   concurrency: 1
@@ -20,7 +22,7 @@ const AppDev = (props) => {
   const {currentClusterCode} = props;
   const [appList, setAppList] = useState([]);
   const [errCount, setErrCount] = useState(0);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const getApiList = async () => {
     if (!currentClusterCode) {
@@ -31,9 +33,10 @@ const AppDev = (props) => {
       const {success} = await api.appApi.appList(currentClusterCode);
 
       setAppList(success);
-      setLoading(false);
     } catch (e) {
       setErrCount(errCount + 1);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -44,32 +47,38 @@ const AppDev = (props) => {
   useEffect(() => {
     setErrCount(0);
     setAppList([]);
-    setLoading(false);
+    setLoading(true);
+    getApiList();
   }, [currentClusterCode]);
 
+  const total = appList.length;
+
   return (
-    <div>
+    <div className="app-dev">
       <BannerCard>
         <Ring
-          total={10}
-          success={7}
+          key={`${total}${currentClusterCode}`}
+          total={total}
+          success={total / 2}
         />
       </BannerCard>
 
-      应用列表
+      <div className="app-div-title">应用列表</div>
       <div className="app-list">
-        <Spin spinning={loading}>
-          {
-            appList.map(app => {
-              return (
-                <App
-                  key={app.name}
-                  app={app}
-                />
-              );
-            })
-          }
-        </Spin>
+        <BannerCard>
+          <Spin spinning={loading}>
+            {
+              appList.map(app => {
+                return (
+                  <App
+                    key={app.name}
+                    app={app}
+                  />
+                );
+              })
+            }
+          </Spin>
+        </BannerCard>
       </div>
     </div>
   );
