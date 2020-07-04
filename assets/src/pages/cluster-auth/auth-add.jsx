@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import {Modal, Form, Input, message, Select} from 'antd';
 import notification from '@coms/notification';
 import _ from 'lodash';
-import {tryParse} from '@lib/util';
+import {tryParse, tryArrToStr} from '@lib/util';
 import {aclApi} from '@api';
 
 const layout = {
@@ -19,13 +19,14 @@ const DEFAULT_APP = {
 };
 
 const AuthAdd = (props) => {
-  console.log(props);
   const [form] = Form.useForm();
   const [comfirmLoading, setComfirmLoading] = useState(false);
   const [visible, setVisible] = useState(true);
   const appList = _.get(props, 'appList');
+  const row = _.get(props, 'row');
+  const selectedCluster = _.get(props, 'selectedCluster');
 
-  const isAdd = _.get(props, 'row') === undefined;
+  const isAdd = _.isEmpty(row) || row === undefined;
 
   const onSubmit = () => {
     form.validateFields().then(async (value) => {
@@ -33,16 +34,14 @@ const AuthAdd = (props) => {
 
       try {
         const values = {
-          id: -1,
           name: value.name,
           cluster_admin: value.cluster_admin,
-          apps: value.apps,
-          cluster_code: _.get(props, 'selectedCluster.code'),
-          cluster_id: _.get(props, 'selectedCluster.id'),
-          cluster_name: _.get(props, 'selectedCluster.name'),
+          apps: tryArrToStr(value.apps),
+          cluster_code: selectedCluster.code,
+          cluster_id: selectedCluster.id,
+          cluster_name: selectedCluster.name,
         };
 
-        console.log('value =>', values);
         await aclApi.createAcl(values);
 
         message.success('权限添加成功');
@@ -58,16 +57,50 @@ const AuthAdd = (props) => {
     });
   };
 
+  const onUpdate = () => {
+    form.validateFields().then(async (value) => {
+      setComfirmLoading(true);
+      try {
+        const values = {
+          acl: {
+            id: row.id,
+            name: value.name,
+            cluster_admin: value.cluster_admin,
+            apps: tryArrToStr(value.apps),
+            cluster_code: selectedCluster.code,
+            cluster_id: selectedCluster.id,
+            cluster_name: selectedCluster.name,
+            gmt_create: row.gmt_create,
+            gmt_modified: row.gmt_modified,
+          },
+          clusterCode: selectedCluster.code,
+        };
+
+        await aclApi.updateAcl(row.id, values);
+
+        message.success('权限更新成功');
+      } catch (error) {
+        notification.error({
+          message: '更新失败',
+          description: error.message,
+        });
+      } finally {
+        setComfirmLoading(false);
+        onClose();
+      }
+    });
+  };
+
   const onClose = useCallback(() => {
     setVisible(false);
-    _.isFunction(props.getCluster) && props.getCluster();
+    _.isFunction(props.getAclList) && props.getAclList();
   });
 
   return (
     <Modal
       okText="确定"
       cancelText="取消"
-      onOk={onSubmit}
+      onOk={isAdd ? onSubmit : onUpdate}
       confirmLoading={comfirmLoading}
       title={isAdd ? '添加权限' : '编辑权限'}
       visible={visible}
@@ -86,11 +119,11 @@ const AuthAdd = (props) => {
         <Form.Item
           label="权限:"
           name="cluster_admin"
-          initialValue={_.get(props, 'row.cluster_admin', '0')}
+          initialValue={_.get(props, 'row.cluster_admin', 0)}
         >
           <Select style={{width: 120}}>
-            <Select.Option value="1">管理员</Select.Option>
-            <Select.Option value="0">普通用户</Select.Option>
+            <Select.Option value={1}>管理员</Select.Option>
+            <Select.Option value={0}>普通用户</Select.Option>
           </Select>
         </Form.Item>
         <Form.Item
@@ -129,7 +162,7 @@ const AuthAdd = (props) => {
 };
 
 AuthAdd.propTypes = {
-  getCluster: PropTypes.func,
+  getAclList: PropTypes.func,
 };
 
 export default (props) => {
