@@ -6,7 +6,6 @@ import {Modal, Form, Input, message, Select} from 'antd';
 import notification from '@coms/notification';
 import _ from 'lodash';
 import {tryParse, tryArrToStr} from '@lib/util';
-
 import {aclApi} from '@api';
 
 const layout = {
@@ -125,7 +124,6 @@ const AuthAdd = (props) => {
           <Select style={{width: 120}}>
             <Select.Option value={1}>管理员</Select.Option>
             <Select.Option value={0}>普通用户</Select.Option>
-
           </Select>
         </Form.Item>
         <Form.Item
