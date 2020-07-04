@@ -12,8 +12,14 @@
   transition: all .3s;
   margin: 10px 0;
 
+  .app-info {
+    display: flex;
+    justify-content: space-between;
+    width: calc(100% - 45px);
+  }
+
   .usage-echarts {
-    width: 250px;
+    width: 200px;
     margin-right: 10px;
 
     .charts-title {
@@ -39,6 +45,9 @@
   .info {
     float: left;
     margin-right: 15px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 
     .info-title {
       font-weight: bolder;

@@ -14,3 +14,11 @@ export const create = (data) => {
 export const deleteCluster = (code) => {
   return request.post(`/api/cluster/${code}/delete`, {});
 };
+
+/**
+ * 获取集群状态
+ * @param {String} clusterCode 集群code
+ */
+export const status = (clusterCode) => {
+  return request.get(`/api/status`, {params: {clusterCode}});
+};

@@ -6,10 +6,14 @@ import {Spin} from 'antd';
 
 import api from '@api/index';
 import Ring from '@coms/ring';
+import {useRequest} from '@lib/hooks';
 import BannerCard from '@coms/banner-card';
 import useInterval from '@lib/use-interval';
+import notification from '@coms/notification';
 
 import App from './coms/app';
+import {getClusterUsages} from './util';
+import Usages, {MODE} from './coms/usages';
 
 import './index.less';
 
@@ -23,6 +27,25 @@ const AppDev = (props) => {
   const [appList, setAppList] = useState([]);
   const [errCount, setErrCount] = useState(0);
   const [loading, setLoading] = useState(true);
+
+  const {result, loading: statusLoading} = useRequest({
+    request: async () => {
+      if (!currentClusterCode) {
+        return [];
+      }
+
+      return await api.clusterApi.status(currentClusterCode);
+    },
+    onError: (err) => {
+      notification.error({
+        message: '获取集群状态失败',
+        description: err.message
+      });
+    },
+    defaultValue: {
+      success: []
+    }
+  }, [currentClusterCode]);
 
   const getApiList = async () => {
     if (!currentClusterCode) {
@@ -53,14 +76,39 @@ const AppDev = (props) => {
 
   const total = appList.length;
 
+  const usages = getClusterUsages(result.success);
+
   return (
     <div className="app-dev">
-      <BannerCard>
+      <BannerCard className="app-status">
         <Ring
-          key={`${total}${currentClusterCode}`}
-          total={total}
-          success={total / 2}
+          all={total}
+          part={total / 2}
+          title="当前集群应用"
+          allTitle="应用总数"
+          partTitle="异常应用总数"
         />
+        {
+          usages.length && (
+            <Usages
+              mode={MODE.MEM}
+              usages={usages}
+              loading={statusLoading}
+              currentClusterCode={currentClusterCode}
+            />
+          )
+        }
+
+        {
+          usages.length && (
+            <Usages
+              mode={MODE.DISK}
+              usages={usages}
+              loading={statusLoading}
+              currentClusterCode={currentClusterCode}
+            />
+          )
+        }
       </BannerCard>
 
       <div className="app-div-title">应用列表</div>

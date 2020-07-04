@@ -4,8 +4,10 @@ import moment from 'moment';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import WhiteSpace from '@coms/white-space';
+import {Tooltip as AntdTooltip, Menu, Dropdown} from 'antd';
 import AdminAppIconTip from '@coms/admin-app-icon-tip';
 import {DeploymentUnitOutlined, DownOutlined} from '@ant-design/icons';
+
 import {ADMIN_APP_NAME, ADMIN_APP_CODE} from '@lib/consts';
 import {PRIMARY_COLOR} from '@lib/color';
 import {
@@ -89,6 +91,36 @@ const data = [
   },
 ];
 
+const MENU_KEYS = {
+  EXPEND: 'EXPEND',
+  CONFIG: 'CONFIG',
+  LOG: 'LOG',
+};
+
+// 获取菜单
+// eslint-disable-next-line
+const getMenu = ({onClick}) => {
+  return (
+    <Menu onClick={({key}) => onClick(key)}>
+      <Menu.Item key={MENU_KEYS.EXPEND}>
+        <a>
+          展开
+        </a>
+      </Menu.Item>
+      <Menu.Item key={MENU_KEYS.CONFIG}>
+        <a>
+          应用配置
+        </a>
+      </Menu.Item>
+      <Menu.Item key={MENU_KEYS.LOG}>
+        <a>
+          应用日志
+        </a>
+      </Menu.Item>
+    </Menu>
+  );
+};
+
 
 const App = (props) => {
   const {app} = props;
@@ -131,61 +163,73 @@ const App = (props) => {
       <div className="app-icon">
         <DeploymentUnitOutlined style={{fontSize: 30}} />
       </div>
-      {
-        infos.map(([title, info]) => {
-          return (
-            <div className="info" key={title}>
-              <div className="info-title">{title}</div>
-              <div className="info-content">{info}</div>
-            </div>
-          );
-        })
-      }
-      {
-        charts.map(([title, data]) => {
-          return (
-            <div
-              className="usage-echarts"
-              key={title}
-            >
-              <div className="charts-title">{title}</div>
-              <div className="echarts-box">
-                <Chart
-                  height={30}
-                  width={250}
-                  data={data}
-                  autoFit
-                  pure
-                >
-                  <Tooltip shared={false} />
-                  <Area
-                    position="time*value"
-                    color={`l (270) 0:rgba(255, 255, 255, 1) 1:${PRIMARY_COLOR}`}
-                  />
-                  <Line
-                    position="time*value"
-                    color={PRIMARY_COLOR}
-                  />
-                </Chart>
+      <div className="app-info">
+        {
+          infos.map(([title, info]) => {
+            return (
+              <div className="info" key={title}>
+                <div className="info-title">{title}</div>
+                <div className="info-content">
+                  <AntdTooltip title={info} placement="right">
+                    {info}
+                  </AntdTooltip>
+                </div>
               </div>
-            </div>
-          );
-        })
-      }
-      <div className="info">
-        <div className="info-title">操作</div>
-        <div>
-          <a>
+            );
+          })
+        }
+        {
+          charts.map(([title, data]) => {
+            return (
+              <div
+                className="usage-echarts"
+                key={title}
+              >
+                <div className="charts-title">{title}</div>
+                <div className="echarts-box">
+                  <Chart
+                    height={30}
+                    width={200}
+                    data={data}
+                    autoFit
+                    pure
+                  >
+                    <Tooltip shared={false} />
+                    <Area
+                      position="time*value"
+                      color={`l (270) 0:rgba(255, 255, 255, 1) 1:${PRIMARY_COLOR}`}
+                    />
+                    <Line
+                      position="time*value"
+                      color={PRIMARY_COLOR}
+                    />
+                  </Chart>
+                </div>
+              </div>
+            );
+          })
+        }
+        <div className="info">
+          <div className="info-title">操作</div>
+          <div>
+            <a>
             重启
-          </a>
-          <WhiteSpace />|<WhiteSpace />
-          <a>
+            </a>
+            <WhiteSpace />|<WhiteSpace />
+            <a>
+            重载
+            </a>
+            <WhiteSpace />|<WhiteSpace />
+            <a>
             回滚
-          </a>
-          <WhiteSpace />|<WhiteSpace />
-          <a>
-            更多<WhiteSpace /><DownOutlined />
-          </a>
+            </a>
+            <WhiteSpace />|<WhiteSpace />
+            <Dropdown overlay={getMenu({onClick: () => setActive(true)})}>
+              <a>
+                更多<WhiteSpace /><DownOutlined />
+              </a>
+            </Dropdown>
+          </div>
         </div>
       </div>
     </div>

@@ -6,8 +6,8 @@ import './index.less';
 const BannerCard = (props) => {
   return (
     <div
-      className="banner-card"
       {...props}
+      className={`banner-card ${props.className}`}
     >
       {
         props.children
@@ -18,7 +18,8 @@ const BannerCard = (props) => {
 
 BannerCard.propTypes = {
   children: PropTypes.element,
-  style: CSSStyleSheet
+  style: CSSStyleSheet,
+  className: PropTypes.string
 };
 
 export default BannerCard;
