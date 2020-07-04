@@ -61,36 +61,6 @@ const getStat = (versions) => {
   };
 };
 
-const data = [
-  {
-    time: '2020-07-01 09:30:36', value: 20
-  },
-  {
-    time: '2020-07-02 09:30:36', value: 20
-  },
-  {
-    time: '2020-07-03 09:30:36', value: 30
-  },
-  {
-    time: '2020-07-05 09:30:36', value: 50
-  },
-  {
-    time: '2020-07-06 09:30:36', value: 20
-  },
-  {
-    time: '2020-07-07 09:30:36', value: 10
-  },
-  {
-    time: '2020-07-08 09:30:36', value: 80
-  },
-  {
-    time: '2020-07-09 09:30:36', value: 30
-  },
-  {
-    time: '2020-07-10 09:30:36', value: 100
-  },
-];
-
 const MENU_KEYS = {
   EXPEND: 'EXPEND',
   CONFIG: 'CONFIG',
@@ -123,11 +93,12 @@ const getMenu = ({onClick}) => {
 
 
 const App = (props) => {
-  const {app} = props;
+  const {app, usage} = props;
   const {name, versions} = app;
   const {publishAt, total, online, exception} = getStat(versions);
   const isAdminApp = ADMIN_APP_CODE === name;
   const [isActive, setActive] = useState(false);
+  const {memUsage, cpuUsage} = usage || {};
 
   const infos = [
     [
@@ -146,12 +117,12 @@ const App = (props) => {
 
   const charts = [
     [
-      '内存（3m）',
-      data
+      '内存',
+      memUsage || []
     ],
     [
-      'cpu（3m）',
-      data
+      'cpu',
+      cpuUsage || []
     ]
   ];
 
@@ -193,14 +164,19 @@ const App = (props) => {
                     data={data}
                     autoFit
                     pure
+                    scale={{
+                      value: {
+                        min: 0
+                      }
+                    }}
                   >
                     <Tooltip shared={false} />
                     <Area
-                      position="time*value"
+                      position="timestamp*value"
                       color={`l (270) 0:rgba(255, 255, 255, 1) 1:${PRIMARY_COLOR}`}
                     />
                     <Line
-                      position="time*value"
+                      position="timestamp*value"
                       color={PRIMARY_COLOR}
                     />
                   </Chart>
@@ -242,7 +218,8 @@ App.propTypes = {
     versions: PropTypes.arrayOf(PropTypes.shape({
 
     }))
-  })
+  }),
+  usage: PropTypes.object
 };
 
 export default App;

@@ -29,3 +29,6 @@ export const LOG_LEVEL = {
 // 管控进程应用名
 export const ADMIN_APP_CODE = '__ADMIN__';
 export const ADMIN_APP_NAME = '管控应用';
+
+// 匹配应用名 abc_1.1.2_2
+export const APP_ID_MATCH = /^(.+)_(\d+\.\d+\.\d+)_(\d+[-\w+]*|-\w+)*/;
