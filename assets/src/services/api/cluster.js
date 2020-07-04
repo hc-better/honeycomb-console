@@ -22,3 +22,18 @@ export const deleteCluster = (code) => {
 export const status = (clusterCode) => {
   return request.get(`/api/status`, {params: {clusterCode}});
 };
+
+/**
+ * 获取cluster的使用信息
+ * @param {Object} query
+ * @param {String} query.clusterCode
+ * @param {String} query.from
+ * @param {String} query.to
+ */
+export const usage = ({
+  clusterCode,
+  from,
+  to
+}) => {
+  return request.get(`/api/appUsages`, {params: {clusterCode, from, to}});
+};
