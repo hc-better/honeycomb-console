@@ -108,7 +108,7 @@ const AppDev = (props) => {
 
   useInterval(() => {
     appQ.push(getApiList);
-  }, 1000);
+  }, 1000 * 2);
 
   useInterval(() => {
     usageQ.push(getUsage);
@@ -165,14 +165,15 @@ const AppDev = (props) => {
       <div className="app-div-title">应用列表</div>
       <div className="app-list">
         <BannerCard>
-          <Spin spinning={loading}>
+          <Spin className="app-list-spinning" spinning={loading}>
             {
-              appList.map(app => {
+              appList.map((app, ind) => {
                 return (
                   <App
                     key={app.name}
                     app={app}
                     usage={appUsgae[app.name] || {}}
+                    zIndex={appList.length - ind}
                   />
                 );
               })
