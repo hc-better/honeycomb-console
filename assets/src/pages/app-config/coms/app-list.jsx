@@ -1,4 +1,5 @@
 import React, {useState, useEffect} from 'react';
+import PropTypes from 'prop-types';
 import {Menu} from 'antd';
 import _ from 'lodash';
 import {CodeOutlined, PlayCircleOutlined} from '@ant-design/icons';
@@ -30,6 +31,7 @@ const AppList = ({setAppId}) => {
       defaultOpenKeys={['sub1']}
       onClick={({key}) => setAppId(key)}
       style={{height: '100%', borderRight: 0}}
+      loading={loading}
     >
       <SubMenu key="sub1" icon={<PlayCircleOutlined />} title="应用列表">
         {
@@ -46,6 +48,10 @@ const AppList = ({setAppId}) => {
       </SubMenu>
     </Menu>
   );
+};
+
+AppList.propTypes = {
+  setAppId: PropTypes.func
 };
 
 export default AppList;

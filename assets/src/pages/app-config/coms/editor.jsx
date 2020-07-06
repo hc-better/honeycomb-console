@@ -1,5 +1,6 @@
 import React, {useState, useEffect} from 'react';
-import MonacoEditor, { MonacoDiffEditor } from 'react-monaco-editor';
+import PropTypes from 'prop-types';
+import MonacoEditor, {MonacoDiffEditor} from 'react-monaco-editor';
 import {Button} from 'antd';
 
 const Editor = ({appId}) => {
@@ -10,8 +11,10 @@ const Editor = ({appId}) => {
 
   useEffect(() => {
     // TODO 获取当前APP配置
-    return () => {};
-  });
+    return () => {
+      setOriginal('const a = "Hello useEffect code"');
+    };
+  }, [appId]);
 
   return (
     <div className="editor-wrap">
@@ -22,8 +25,13 @@ const Editor = ({appId}) => {
             original={original}
           />
         ) : (
-          <MonacoEditor />
-          )}
+          <MonacoEditor
+            value={code}
+            onChange={(value) => {
+              setCurrentCode(value);
+            }}
+          />
+        )}
       </div>
       <div>
         {editStatus ? (
@@ -40,4 +48,7 @@ const Editor = ({appId}) => {
   );
 };
 
+Editor.propTypes = {
+  appId: PropTypes.string
+};
 export default Editor;

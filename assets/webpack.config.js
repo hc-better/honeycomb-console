@@ -150,7 +150,7 @@ const config = {
   plugins: [
     new webpack.HotModuleReplacementPlugin(),
     new MonacoWebpackPlugin({
-      languages: ["json", "javascript", "typescript"]
+      languages: ['json', 'javascript', 'typescript']
     }),
     new MiniCssExtractPlugin({
       filename: '[name].css'
