@@ -21,6 +21,16 @@ export const tryArrToStr = (arr) => {
 
     return `[${result.join(',')}]`;
   } catch (error) {
-    return arr;
+    return [];
+  }
+};
+
+export const tryArrToLineBreakStr = (arr) => {
+  try {
+    if (!Array.isArray(arr)) throw new Error(false);
+
+    return arr.map((e) => e).join('\n');
+  } catch (error) {
+    return [];
   }
 };
