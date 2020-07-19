@@ -103,9 +103,6 @@ const SysMonitor = (props) => {
   return (
     <div>
       <TitleCard title="集群状态监控" des="监控集群的运行状态"></TitleCard>
-      <Button type="primary" className="margin-b10">
-        + 添加用户
-      </Button>
       <BannerCard>
         <div className="sys-monitor__header">
           <div className="sys-monitor__header__title">{`运行状态`}</div>
