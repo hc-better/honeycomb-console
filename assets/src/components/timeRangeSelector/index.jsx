@@ -1,41 +1,60 @@
 import React, {useState} from 'react';
 // import _ from 'lodash';
-import {Dropdown, Form, Input, Button, Row, DatePicker} from 'antd';
+import {Dropdown, Form, Button, DatePicker} from 'antd';
 import moment from 'moment';
-// import BannerCard from '@coms/banner-card';
+import PropTypes from 'prop-types';
+import {DownOutlined, HistoryOutlined} from '@ant-design/icons';
 import {recentTimeRange} from './options';
-import {translateTimeAliasToCh, getMsFromTimeAlias} from './util';
+import {translateTimeAliasToCh, getRecentMomentFromTimeAlias} from './util';
 
 import './index.less';
 
 const {RangePicker} = DatePicker;
 
-const TimeRangeSelector = () => {
+const TimeRangeSelector = (props) => {
+  const {onChange} = props;
   const [form] = Form.useForm();
   const [visible, setVisible] = useState(false);
+  const [defaultRecentTime, setDefaultRecentTime] = useState('2h');
+  const [defaultCustomTime, setDefaultCustomTime] = useState('');
 
   const recentTimeOpts = recentTimeRange.map((recentDuration) => ({
     label: `${'最近'} ${translateTimeAliasToCh(recentDuration)}`,
+    value: recentDuration,
   }));
-
-  // eslint-disable-next-line array-callback-return
-  console.log('==>', recentTimeOpts);
 
   const handleVisibleChange = (flag) => {
     setVisible(flag);
   };
 
-  const handleVisibleFalse = () => {
-    setVisible(false);
+  const handleRecentWrapperClick = (e) => {
+    const {value} = e.target.dataset;
+
+    if (value) {
+      const {from, to} = getRecentMomentFromTimeAlias(value);
+
+      setDefaultRecentTime(`${value}`);
+      setDefaultCustomTime('');
+      setVisible(false);
+
+      onChange({
+        from,
+        to,
+      });
+    }
   };
 
   const renderRecentOpts = () => {
     return (
       <div className="recentWrapper">
         <div className="timeRange-title">选择时间范围</div>
-        <ul>
-          {recentTimeOpts.map(({label}, index) => (
-            <li key={label} data-value={index}>
+        <ul onClick={handleRecentWrapperClick}>
+          {recentTimeOpts.map(({label, value}) => (
+            <li
+              key={label}
+              data-value={value}
+              className={`${value === defaultRecentTime ? 'cur' : null}`}
+            >
               {`${label}`}
             </li>
           ))}
@@ -48,6 +67,24 @@ const TimeRangeSelector = () => {
     // Can not select days before today and today
     return current && current > moment().endOf('day');
   }
+  const onFinish = (fieldsValue) => {
+    const rangeTimeValue = fieldsValue['rangerPicker'];
+    const values = {
+      from: rangeTimeValue[0].format('YYYY-MM-DD-HH-mm'),
+      to: rangeTimeValue[1].format('YYYY-MM-DD-HH-mm'),
+    };
+
+    const customTime = `${rangeTimeValue[0].format(
+      'YYYY年 M月 DD日 HH:mm'
+    )} ~ ${rangeTimeValue[1].format('YYYY年 M月 DD日 HH:mm')}`;
+
+    setDefaultCustomTime(customTime);
+    setVisible(false);
+    onChange({
+      from: values.from,
+      to: values.to,
+    });
+  };
 
   const renderCustomOpts = () => {
     return (
@@ -56,12 +93,20 @@ const TimeRangeSelector = () => {
         <Form
           layout={'vertical'}
           form={form}
-          initialValues={{rangerPicker: [moment(), moment()]}}
+          initialValues={{
+            rangerPicker: [moment().subtract(1, 'hour'), moment()],
+          }}
+          onFinish={onFinish}
         >
-          <Form.Item label="时间范围">
+          <Form.Item
+            name="rangerPicker"
+            label="时间范围"
+            rules={[
+              {type: 'array', required: true, message: '请选择时间范围!'},
+            ]}
+          >
             <RangePicker
               style={{width: '100%'}}
-              name="rangerPicker"
               disabledDate={disabledDate}
               showTime={{format: 'HH:mm'}}
               format="YYYY-MM-DD HH:mm"
@@ -72,7 +117,7 @@ const TimeRangeSelector = () => {
             <Button
               htmlType="button"
               style={{marginRight: '8px'}}
-              onClick={handleVisibleFalse}
+              onClick={() => setVisible(false)}
             >
               取消
             </Button>
@@ -83,6 +128,12 @@ const TimeRangeSelector = () => {
         </Form>
       </div>
     );
+  };
+
+  const renderButtonText = () => {
+    return defaultCustomTime === '' ?
+      `${'最近'} ${translateTimeAliasToCh(defaultRecentTime)}` :
+      `${defaultCustomTime}`;
   };
 
   const timeRange = () => {
@@ -101,11 +152,22 @@ const TimeRangeSelector = () => {
       visible={visible}
       onVisibleChange={handleVisibleChange}
     >
-      <a className="ant-dropdown-link" onClick={(e) => e.preventDefault()}>
-        Hover me
-      </a>
+      <div className="time-select__button">
+        <div className={`button__content ${visible ? 'active' : null}`}>
+          <HistoryOutlined style={{fontSize: '12px'}} />
+          <div className="button__text">{renderButtonText()}</div>
+          <DownOutlined
+            className="button__arrow"
+            style={{fontSize: '12px'}}
+          />
+        </div>
+      </div>
     </Dropdown>
   );
+};
+
+TimeRangeSelector.propTypes = {
+  onChange: PropTypes.func,
 };
 
 export default TimeRangeSelector;

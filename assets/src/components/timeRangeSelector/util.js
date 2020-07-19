@@ -8,12 +8,12 @@ export const timeUnitAlias2MsMap = {
   w: 1000 * 60 * 60 * 24 * 7,
 };
 
-export const timeUnitAlias2CompleteTimeMap = {
-  s: 'Seconds',
-  m: 'Minutes',
-  h: 'Hours',
-  d: 'Days',
-  w: 'Weeks',
+export const timeUnitAliasMomentKeyMap = {
+  s: 'seconds',
+  m: 'minutes',
+  h: 'hours',
+  d: 'days',
+  w: 'weeks',
 };
 
 export const timeUnitAlias2CompleteTimeChMap = {
@@ -33,8 +33,6 @@ export const timeUnitAlias2CompleteTimeChMap = {
 export function translateTimeAliasToCh(timeAlias) {
   try {
     const [, count, unit] = timeAlias.match(/^(\d+)([a-zA-Z])$/);
-
-    console.log(count, unit);
     // 10 m
 
     return `${count} ${timeUnitAlias2CompleteTimeChMap[unit]}`;
@@ -48,17 +46,27 @@ export function translateTimeAliasToCh(timeAlias) {
 /**
  * translate '10s' to '10 秒'
  * @param {string} timeAlias
- * @returns {string}
+ * @returns {from, to}
  */
-export function getMsFromTimeAlias(timeAlias) {
-  const {count, unit} = splitTimeAlias(timeAlias);
+export function getRecentMomentFromTimeAlias(timeAlias) {
+  try {
+    const {count, unit} = splitTimeAlias(timeAlias);
 
-  console.log(count, unit);
-  const r = moment().subtract(count, unit);
+    const momentKey = timeUnitAliasMomentKeyMap[unit];
+    const from = moment()
+      .subtract(Number(count), momentKey)
+      .format('YYYY-MM-DD-HH-mm');
 
-  console.log('moment =>>', r.format('YYYY-MM-DD-HH-mm'));
-
-  return count * timeUnitAlias2MsMap[unit];
+    return {
+      from,
+      to: moment().format('YYYY-MM-DD-HH-mm'),
+    };
+  } catch (error) {
+    return {
+      from: moment().format('YYYY-MM-DD-HH-mm'),
+      to: moment().format('YYYY-MM-DD-HH-mm'),
+    };
+  }
 }
 
 /**

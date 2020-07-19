@@ -142,7 +142,6 @@ const ClusterUpset = (props) => {
             {required: true, message: 'ip 列表不能为空！'},
             () => ({
               validator(rule, value) {
-                console.log(value);
                 if (value) {
                   const ips = value.trim().split(/[\n,]/g);
                   const errArr = [];
