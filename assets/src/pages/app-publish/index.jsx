@@ -57,6 +57,7 @@ const AppPublish = (props) => {
         <TabPane tab="手动发布" key="app-publish">
           <Publish
             clusterCode={currentClusterCode}
+            clusterName={currentCluster && currentCluster.name}
           />
         </TabPane>
       </Tabs>

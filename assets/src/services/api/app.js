@@ -36,6 +36,8 @@ export const upload = async (clusterCode, file, onProgress) => {
     onUploadProgress: (progressEvt) => {
       const {loaded, total} = progressEvt;
 
+      console.log('xxxx, uploaded', loaded, total);
+
       onProgress(loaded, total);
     }
   });

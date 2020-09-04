@@ -1,39 +1,25 @@
 import React, {useState} from 'react';
-import {Button, Upload, Modal, message, Progress} from 'antd';
+import {Button, Upload} from 'antd';
 import PropTypes from 'prop-types';
-
-import api from '@api/index';
 
 import {UploadOutlined} from '@ant-design/icons';
 
-const UploadModal = () => {
+import callUploadModal from './upload-modal';
 
-};
+
+const noop = () => null;
 
 const Publish = (props) => {
-  const {clusterCode, onFinish} = props;
-
-  const [file, setFile] = useState(null);
-
-  const onProgress = (loaded, total) => {
-
-  };
+  const {clusterName, clusterCode, onFinish = noop} = props;
 
   const uploadProps = {
+    accept: '.tgz',
     beforeUpload: (file) => {
-      setFile(file);
-
-      Modal.confirm({
-        title: '确定要发布应用到当前集群？',
-        onOk: async () => {
-          if (!file) {
-            message.error('当前尚未选择文件！');
-
-            return;
-          }
-
-          await api.appApi.upload(clusterCode, file, onProgress);
-        }
+      callUploadModal({
+        file,
+        onFinish: onFinish,
+        clusterCode,
+        clusterName
       });
 
       return false;
@@ -46,7 +32,9 @@ const Publish = (props) => {
       <Upload
         {...uploadProps}
       >
-        <Button type="primary">
+        <Button
+          type="primary"
+        >
           <UploadOutlined /> 应用发布
         </Button>
       </Upload>
@@ -56,7 +44,8 @@ const Publish = (props) => {
 
 Publish.propTypes = {
   clusterCode: PropTypes.string,
-  onFinish: PropTypes.func        // 上传结束时的响应函数
+  onFinish: PropTypes.func,       // 上传结束时的响应函数
+  clusterName: PropTypes.string
 };
 
 export default Publish;
