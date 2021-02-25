@@ -82,12 +82,13 @@ const App = (props) => {
   const appStatus = workingApp && workingApp.cluster.map(c => c.status);
   const isOnline = workingApp && appStatus.includes(APP_STATUS.ONLINE);
   const isLoading = isAppLoading(workingApp);
-
+  const fontOffline = {color: isOnline ? undefined : '#ccc'};
+  const fontError = {color: exception > 0 ? '#f56a00' : undefined, background: exception > 0 ? '#fde3cf' : undefined};
   const infos = [
     [
       isAdminApp ?
-        (<span>{ADMIN_APP_NAME}<WhiteSpace /><AdminAppIconTip /></span>) :
-        name,
+        (<span style={fontOffline}>{ADMIN_APP_NAME}<WhiteSpace /><AdminAppIconTip /></span>) :
+        <span style={fontOffline}>name</span>,
       `创建于${publishAt}`
     ],
     [
@@ -95,7 +96,7 @@ const App = (props) => {
       '运行版本'
     ],
     [
-      `${exception}`,
+      <span className='error-num' style={fontError}>{exception}</span>,
       '异常数'
     ]
   ];
@@ -198,7 +199,7 @@ const App = (props) => {
   };
 
   const style = {fontSize: 30, color: isOnline ? undefined : '#ccc'};
-
+  
   return (
     <div
       className={classnames('app', {active: isActive})}
@@ -226,7 +227,7 @@ const App = (props) => {
             infos.map(([title, info]) => {
               return (
                 <div className="info" key={title}>
-                  <div className="info-title">{title}</div>
+                  <div className="info-title" >{title}</div>
                   <div className="info-content" title={title}>
                     {info}
                   </div>
@@ -290,6 +291,7 @@ const App = (props) => {
           _.cloneDeep(versions).reverse().map(versionApp => {
             return (
               <VersionApp
+                isAdminApp={isAdminApp}
                 key={versionApp.appId}
                 versionApp={versionApp}
                 onAppOpClick={(key) => onAppAction(key, versionApp.appId)}

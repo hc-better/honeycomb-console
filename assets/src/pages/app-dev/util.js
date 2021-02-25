@@ -84,7 +84,7 @@ const groupByMinute = (usage, chunk = 10) => {
 
     data.push({
       timestamp: key,
-      value: avg
+      value: _.round(avg, 2)
     });
   });
 
@@ -108,25 +108,23 @@ export const parseUsgae = (usage) => {
   const {memUsage, cpuUsage} = usage;
   const parsedMemUsage = [];
   const parseCpuUsage = [];
-
   memUsage.split(';').forEach(part => {
     const [timestamp, used] = part.split(',');
-
+    let fixedUse = toFixed2(used);
     parsedMemUsage.push({
       timestamp: moment(timestamp, 'HH:mm:ss'),
-      value: toFixed2(used)
+      value: fixedUse
     });
   });
 
   cpuUsage.split(';').forEach(part => {
     const [timestamp, used] = part.split(',');
-
+    let fixedUse = toFixed2(used);
     parseCpuUsage.push({
       timestamp: moment(timestamp, 'HH:mm:ss'),
-      value: toFixed2(used)
+      value: fixedUse
     });
   });
-
   return {
     memUsage: groupByMinute(parsedMemUsage),
     cpuUsage: groupByMinute(parseCpuUsage)

@@ -97,7 +97,7 @@ const VersionApp = (props) => {
     ],
     [
       '操作',
-      <AppOp
+      !props.isAdminApp && <AppOp
         key="op"
         status={appStatus}
         appName={appId}

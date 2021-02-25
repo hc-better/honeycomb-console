@@ -97,14 +97,11 @@ const AppDev = (props) => {
       const keys = Object.keys(usageResult);
       const usage = {};
       const statUsage = usageResult[keys[0]];
-
       apps.forEach(app => {
         const workingApp = getCurrentWorking(app.versions);
         const appId = workingApp && workingApp.appId;
-
         usage[app.name] = parseUsgae(statUsage[appId]);
       });
-
 
       // TODO: 只取出第一个机器的信息，其他机器的信息引导用户去系统监控查看
       setAppUsgae(usage);
