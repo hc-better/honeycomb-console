@@ -108,18 +108,24 @@ const EditAppConfig = (props) => {
           description: e.message
         });
       }
-    }
+    };
+
     callCodeDiff({
       newCode: editorCode,
       oldCode: result,
       onOk: (reload) => {
         let fixReload = reload;
+
         if (appName === 'common' || appName === 'server') {
           fixReload = false;
           Modal.confirm({
             content: appName === 'common' ? '请注意，公共配置生效，需重启对应应用即可！' : '请注意，系统配置生效，需重启任意应用即可！',
-            onOk: () => { doApply(fixReload); },
-            onCancel: () => { return; }
+            onOk: () => {
+              doApply(fixReload);
+            },
+            onCancel: () => {
+              return;
+            }
           });
         } else {
           doApply(fixReload);

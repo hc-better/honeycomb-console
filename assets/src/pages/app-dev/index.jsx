@@ -97,9 +97,11 @@ const AppDev = (props) => {
       const keys = Object.keys(usageResult);
       const usage = {};
       const statUsage = usageResult[keys[0]];
+
       apps.forEach(app => {
         const workingApp = getCurrentWorking(app.versions);
         const appId = workingApp && workingApp.appId;
+
         usage[app.name] = parseUsgae(statUsage[appId]);
       });
 

@@ -83,7 +83,11 @@ const App = (props) => {
   const isOnline = workingApp && appStatus.includes(APP_STATUS.ONLINE);
   const isLoading = isAppLoading(workingApp);
   const fontOffline = {color: isOnline ? undefined : '#ccc'};
-  const fontError = {color: exception > 0 ? '#f56a00' : undefined, background: exception > 0 ? '#fde3cf' : undefined};
+  const fontError = {
+    color: exception > 0 ? '#f56a00' : undefined,
+    background: exception > 0 ? '#fde3cf' : undefined
+  };
+
   const infos = [
     [
       isAdminApp ?
@@ -96,7 +100,7 @@ const App = (props) => {
       '运行版本'
     ],
     [
-      <span className='error-num' style={fontError}>{exception}</span>,
+      <span key="error" className="error-num" style={fontError}>{exception}</span>,
       '异常数'
     ]
   ];
@@ -199,7 +203,7 @@ const App = (props) => {
   };
 
   const style = {fontSize: 30, color: isOnline ? undefined : '#ccc'};
-  
+
   return (
     <div
       className={classnames('app', {active: isActive})}
@@ -227,7 +231,7 @@ const App = (props) => {
             infos.map(([title, info]) => {
               return (
                 <div className="info" key={title}>
-                  <div className="info-title" >{title}</div>
+                  <div className="info-title">{title}</div>
                   <div className="info-content" title={title}>
                     {info}
                   </div>
