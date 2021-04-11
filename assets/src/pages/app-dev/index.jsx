@@ -1,12 +1,13 @@
 import React, {useState, useEffect} from 'react';
 import Q from 'queue';
 import _ from 'lodash';
-import {Spin} from 'antd';
 import moment from 'moment';
 import {connect} from 'dva';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import {withRouter} from 'dva/router';
+import {Spin, Tooltip, Menu, Dropdown} from 'antd';
+import {SettingOutlined, FormatPainterOutlined, CheckCircleOutlined} from '@ant-design/icons';
 
 import api from '@api/index';
 import Ring from '@coms/ring';
@@ -14,10 +15,12 @@ import PAGES from '@lib/pages';
 import {useRequest} from '@lib/hooks';
 import {getErrMsg} from '@lib/error-msg';
 import BannerCard from '@coms/banner-card';
+import WhiteSpace from '@coms/white-space';
 import useInterval from '@lib/use-interval';
 import notification from '@coms/notification';
 
 import App from './coms/app';
+import SimpleApp from './coms/simple-app';
 import Usages, {MODE} from './coms/usages';
 import {getClusterUsages, getCurrentWorking, parseUsgae} from './util';
 
@@ -35,6 +38,7 @@ const usageQ = new Q({
 
 const now = moment().format('YYYY-MM-DD-HH');
 const before = moment().format('YYYY-MM-DD-HH');
+const ok = () => <CheckCircleOutlined style={{color: 'green'}} />;
 
 const AppDev = (props) => {
   const {currentClusterCode, location} = props;
@@ -42,6 +46,7 @@ const AppDev = (props) => {
   const [errCount, setErrCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [appUsgae, setAppUsgae] = useState({});
+  const [isSimple, setIsSimple] = useState(localStorage.getItem('isSimple') || true);
 
   const isActive = location.pathname === PAGES.APP_DEV;
 
@@ -135,6 +140,17 @@ const AppDev = (props) => {
 
   const usages = getClusterUsages(result.success);
 
+  const menu = (
+    <Menu onClick={() => setIsSimple(!isSimple)}>
+      <Menu.Item key="simple">
+        简洁模式<WhiteSpace />{isSimple && ok()}
+      </Menu.Item>
+      <Menu.Item key="standard">
+        标准模式<WhiteSpace />{!isSimple && ok()}
+      </Menu.Item>
+    </Menu>
+  );
+
   return (
     <div
       className={
@@ -175,20 +191,34 @@ const AppDev = (props) => {
         }
       </BannerCard>
 
-      <div className="app-div-title">应用列表</div>
+      <div className="app-div-title">
+        应用列表
+        <WhiteSpace />
+        <Dropdown overlay={menu}>
+          <SettingOutlined />
+        </Dropdown>
+        <WhiteSpace />
+        <Tooltip title="应用清理">
+          <FormatPainterOutlined />
+        </Tooltip>
+      </div>
       <div className="app-list">
         <BannerCard>
           <Spin className="app-list-spinning" spinning={loading}>
             {
               appList.map((app, ind) => {
+                const props = {
+                  key: app.name,
+                  app: app,
+                  usage: appUsgae[app.name] || {},
+                  zIndex: appList.length - ind,
+                  currentClusterCode: currentClusterCode,
+                };
+
                 return (
-                  <App
-                    key={app.name}
-                    app={app}
-                    usage={appUsgae[app.name] || {}}
-                    zIndex={appList.length - ind}
-                    currentClusterCode={currentClusterCode}
-                  />
+                  isSimple ?
+                    <SimpleApp {...props} /> :
+                    <App {...props} />
                 );
               })
             }
