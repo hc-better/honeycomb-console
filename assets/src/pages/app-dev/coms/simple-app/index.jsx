@@ -1,75 +1,53 @@
 import React, {useState} from 'react';
 import _ from 'lodash';
 import moment from 'moment';
+import {Link} from 'dva/router';
 import PropTypes from 'prop-types';
 import {notification, message, Divider} from 'antd';
-import {CheckCircleOutlined} from '@ant-design/icons';
+import {CheckCircleOutlined, PlusSquareOutlined, MinusSquareOutlined} from '@ant-design/icons';
 
 
 import api from '@api/index';
 import PAGES from '@lib/pages';
+import {getStatus} from '@lib/util';
 import {ADMIN_APP_CODE} from '@lib/consts';
-import {MENU_ACTIONS} from '../app/app-op';
 
+
+import AppK from './app-k';
+import VersionOp from './version-op';
 import getProc from './lib/get-proc';
 import AppStatus from './app-status';
+import {MENU_ACTIONS} from '../app/app-op';
 import {getCurrentWorking} from '../../util';
+import {getAvgUsage, getUsageK} from './lib/calc-usage';
 
 import './index.less';
 
+// 用于获取当前正在运行的app
 const APP_SYMBOL = Symbol('__app__');
 
-const isVersionExcept = (version) => {
-  const clusters = version.cluster;
-
-  let expectWorkerNum = 0;
-
+const getOffline = (versions) => {
   // eslint-disable-next-line
-  for (const cluster of clusters) {
-    expectWorkerNum += cluster.expectWorkerNum || 0;
-  }
+  for (const v of versions) {
+    const uniqStatus = _.uniq(v.cluster.map(c => c.status));
 
-  return !!expectWorkerNum;
-};
-
-/**
- * 统计信息
- * 1. 最近发布
- * 2. 总版本数
- * 3. 在线版本数
- * 4. 异常版本数：（1）机器不同步的发布 （2）有错误日志
- * @param {Object[]} versions
- */
-const getStat = (versions) => {
-  const total = versions.length;
-  const online = versions.filter(version => version.isCurrWorking).length;
-  const publishAt = moment(_.last(versions).publishAt).format('YYYY-MM-DD HH:mm:ss');
-  let exceptNum = 0;
-
-  // eslint-disable-next-line
-  for (const version of versions) {
-    if (isVersionExcept(version)) {
-      exceptNum++;
+    if (uniqStatus.length === 1 && uniqStatus[0] === 'offline') {
+      return true;
     }
   }
 
-  return {
-    publishAt: publishAt,
-    total: total,
-    online: online,
-    exception: exceptNum
-  };
+  return false;
 };
 
-
 const SimpleApp = (props) => {
-  const {app, zIndex, currentClusterCode} = props;
+  const {app, zIndex, currentClusterCode, usage, onAppCfg} = props;
   const {name, versions} = app;
   const isAdminApp = ADMIN_APP_CODE === name;
-  const [isActive, setActive] = useState(false);
-  const [cfgAppName, setCfgAppName] = useState(null);
+  const [allVisible, setAllVisible] = useState(false);
 
   const workingApp = getCurrentWorking(versions);
+  const [avgMem, avgCpu] = getAvgUsage(usage);
+  const [memK, cpuK] = getUsageK(usage);
 
   const onAppAction = async (key, appName) => {
     if (!appName) {
@@ -85,7 +63,6 @@ const SimpleApp = (props) => {
         }
       }
 
-
       switch (key) {
         // 删除app
         case MENU_ACTIONS.DELETE: {
@@ -99,26 +76,9 @@ const SimpleApp = (props) => {
           break;
         }
 
-        // 配置app
-        case MENU_ACTIONS.CONFIG: {
-          // eslint-disable-next-line
-          setCfgAppName(name);
-          break;
-        }
-
         // 查看app的日志
         case MENU_ACTIONS.LOG: {
           window.open(`${PAGES.LOG}?appName=${name}&clusterCode=${currentClusterCode}`);
-          break;
-        }
-
-        // 回滚app
-        case MENU_ACTIONS.ROLLBACK: {
-          if (!workingApp) {
-            return message.warn('没有可以回滚的版本！');
-          }
-
-          await api.appApi.stop(currentClusterCode, workingApp.appId);
           break;
         }
 
@@ -131,11 +91,6 @@ const SimpleApp = (props) => {
         // 停止app
         case MENU_ACTIONS.STOP: {
           await api.appApi.stop(currentClusterCode, appName);
-          break;
-        }
-
-        case MENU_ACTIONS.EXPEND: {
-          setActive(!isActive);
           break;
         }
 
@@ -157,6 +112,30 @@ const SimpleApp = (props) => {
     }
   };
 
+  /**
+   * 过滤逻辑
+   * 1. 所有的 online 的 app 都必须显示
+   * 2. 默认隐藏所有的 offline 的 app
+   * 3. 如果全部都是 offline 的 app，那么则全部展示
+   */
+  const filterApp = (version) => {
+    if (allVisible) {
+      return true;
+    }
+
+    const uniqStatus = _.uniq(version.cluster.map(c => c.status));
+
+    const isOffline = uniqStatus.length === 1 && uniqStatus[0] === 'offline';
+
+    return !isOffline;
+  };
+
+  const hasOffline = getOffline(versions);
+  const expandProps = {
+    className: 'expand-icon',
+    onClick: () => setAllVisible(!allVisible)
+  };
+
   return (
     <div
       className="app simple-app"
@@ -164,12 +143,20 @@ const SimpleApp = (props) => {
     >
       <div className="app-name">
         <span>{name}</span>
+        {
+          hasOffline &&
+          (
+            allVisible ?
+              <MinusSquareOutlined {...expandProps} /> :
+              <PlusSquareOutlined {...expandProps} />
+          )
+        }
       </div>
       <div className="simple-versions">
         {
-          versions.map(version => {
+          versions.filter(filterApp).map(version => {
             const [work, expect] = getProc(version.cluster);
-            const {isCurrWorking} = version;
+            const {isCurrWorking, appId} = version;
 
             return (
               <div className="one-version" key={version.version + version.buildNum}>
@@ -199,18 +186,30 @@ const SimpleApp = (props) => {
                   }
                 </span>
                 <span className="mem">
-
+                  {
+                    isCurrWorking && (
+                      <React.Fragment>
+                        {avgMem} mb <AppK appName={name} k={memK} />
+                      </React.Fragment>
+                    )
+                  }
                 </span>
                 <span className="cpu">
-
+                  {
+                    isCurrWorking && (
+                      <React.Fragment>
+                        {avgCpu} <AppK appName={name} k={cpuK} />
+                      </React.Fragment>
+                    )
+                  }
                 </span>
                 {
                   !isAdminApp && (
-                    <span className="version-op">
-                      <a className="stop">停止</a>
-                      <Divider type="vertical" />
-                      <a color="blue">重载</a>
-                    </span>
+                    <VersionOp
+                      status={getStatus(version)}
+                      onAction={(action) => onAppAction(action, appId)}
+                      appId={appId}
+                    />
                   )
                 }
               </div>
@@ -221,11 +220,22 @@ const SimpleApp = (props) => {
       {
         !isAdminApp && (
           <div className="one-app-op">
-            <a className="stop">运维</a>
+            <Link
+              to={`${PAGES.SYS_MONITOR}?clusterCode=${currentClusterCode}&app=${name}`}
+              className="stop"
+              target="_blank"
+            >
+              监控
+            </Link>
             <Divider type="vertical" />
-            <a className="stop">日志</a>
+            <a
+              className="stop"
+              onClick={() => onAppAction(MENU_ACTIONS.LOG, name)}
+            >
+              日志
+            </a>
             <Divider type="vertical" />
-            <a className="stop">配置</a>
+            <a className="stop" onClick={() => onAppCfg(name)}>配置</a>
           </div>
         )
       }
@@ -242,7 +252,8 @@ SimpleApp.propTypes = {
   }),
   usage: PropTypes.object,
   zIndex: PropTypes.number,
-  currentClusterCode: PropTypes.string
+  currentClusterCode: PropTypes.string,
+  onAppCfg: PropTypes.func
 };
 
 export default SimpleApp;

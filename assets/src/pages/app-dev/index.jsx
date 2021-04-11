@@ -6,7 +6,7 @@ import {connect} from 'dva';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import {withRouter} from 'dva/router';
-import {Spin, Tooltip, Menu, Dropdown} from 'antd';
+import {Spin, Tooltip, Menu, Dropdown, Drawer} from 'antd';
 import {SettingOutlined, FormatPainterOutlined, CheckCircleOutlined} from '@ant-design/icons';
 
 import api from '@api/index';
@@ -18,11 +18,13 @@ import BannerCard from '@coms/banner-card';
 import WhiteSpace from '@coms/white-space';
 import useInterval from '@lib/use-interval';
 import notification from '@coms/notification';
+import EditAppConfig from '@coms/edit-app-config';
 
 import App from './coms/app';
 import SimpleApp from './coms/simple-app';
 import Usages, {MODE} from './coms/usages';
-import {getClusterUsages, getCurrentWorking, parseUsgae} from './util';
+import SimpleTitle from './coms/simple-title';
+import {getClusterUsages, getCurrentWorking, parseUsgae, getAppExpceptStatistics} from './util';
 
 import './index.less';
 
@@ -47,6 +49,7 @@ const AppDev = (props) => {
   const [loading, setLoading] = useState(true);
   const [appUsgae, setAppUsgae] = useState({});
   const [isSimple, setIsSimple] = useState(localStorage.getItem('isSimple') || true);
+  const [cfgAppName, setCfgAppName] = useState(null);
 
   const isActive = location.pathname === PAGES.APP_DEV;
 
@@ -69,6 +72,7 @@ const AppDev = (props) => {
     }
   }, [currentClusterCode]);
 
+  // ======================================= 获取应用列表 =======================================
   const getApiList = async () => {
     if (!currentClusterCode) {
       return;
@@ -87,6 +91,7 @@ const AppDev = (props) => {
     }
   };
 
+  // ======================================= 获取用量列表 =======================================
   const getUsage = async (apps = appList) => {
     if (!currentClusterCode) {
       return;
@@ -125,6 +130,7 @@ const AppDev = (props) => {
     usageQ.push(getUsage);
   }, isActive ? 1000 * 60 : null);
 
+  // ======================================= 初始化 =======================================
   useEffect(() => {
     (async () => {
       setErrCount(0);
@@ -135,8 +141,6 @@ const AppDev = (props) => {
       await getUsage(apps);
     })();
   }, [currentClusterCode]);
-
-  const total = appList.length;
 
   const usages = getClusterUsages(result.success);
 
@@ -151,6 +155,8 @@ const AppDev = (props) => {
     </Menu>
   );
 
+  const {total: totalVersion, errorCount, errorApps} = getAppExpceptStatistics(appList);
+
   return (
     <div
       className={
@@ -162,11 +168,18 @@ const AppDev = (props) => {
     >
       <BannerCard className="app-status">
         <Ring
-          all={total}
-          part={total / 2}
-          title="当前集群应用"
+          all={totalVersion}
+          part={errorCount}
+          title="当前集群异常应用"
           allTitle="应用总数"
           partTitle="异常应用总数"
+          partTooltip={(
+            <span>
+              {
+                errorApps.join('，')
+              }
+            </span>
+          )}
         />
         {
           _.get(usages, 'length') && (
@@ -204,6 +217,9 @@ const AppDev = (props) => {
       </div>
       <div className="app-list">
         <BannerCard>
+          {
+            isSimple && <SimpleTitle />
+          }
           <Spin className="app-list-spinning" spinning={loading}>
             {
               appList.map((app, ind) => {
@@ -213,6 +229,9 @@ const AppDev = (props) => {
                   usage: appUsgae[app.name] || {},
                   zIndex: appList.length - ind,
                   currentClusterCode: currentClusterCode,
+                  onAppCfg: (appName) => {
+                    setCfgAppName(appName);
+                  }
                 };
 
                 return (
@@ -225,6 +244,16 @@ const AppDev = (props) => {
           </Spin>
         </BannerCard>
       </div>
+      <Drawer
+        visible={!!cfgAppName}
+        onClose={() => setCfgAppName(null)}
+        width="50%"
+        forceRender
+      >
+        <EditAppConfig
+          appName={cfgAppName}
+        />
+      </Drawer>
     </div>
   );
 };
