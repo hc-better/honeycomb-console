@@ -44,7 +44,7 @@
     "eslint-plugin-react": "^7.20.0",
     "eslint-plugin-react-hooks": "^1.7.0",
     "honeypack": "^1.0.15",
-    "husky": "^4.2.5",
+    "husky": "=4.2.5",
     "install": "^0.13.0",
     "mm": "2.1.0",
     "mocha": "3.2.0",
@@ -54,7 +54,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "eslint",
+      "pre-commit": "npm run eslint",
       "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
     }
   }
